@@ -126,8 +126,9 @@ def model(X_train, y_train,
                                 batch_size=batch_size,
                                verbose=verbose)
 
-    print('Test model score:', score)
-    print('Test model accuracy:', acc)
+    # print('Test model score:', score)
+    # print('Test model accuracy:', acc)
+    return [score, acc]
 
 
 # In[5]:
@@ -161,7 +162,7 @@ tuning_list = [
     }
 ]
 
-def main():
+def run():
     for params in tuning_list:
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
@@ -173,25 +174,16 @@ def main():
               num_classes=num_classes, 
               maxlen=params['maxlen'], 
               verbose=0)
-get_ipython().run_line_magic('time', '_ = main()')
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+if __name__ == '__main__':
+    begin = time.time()
+    [score, accuracy] = run(rank)
+    print('Test model score:', score)
+    print('Test model accuracy:', accuracy)
+    end = time.time()
+    elapse = end - begin
+    print("Executed in %f secs" % (elapse))
 
 
 # In[ ]:
