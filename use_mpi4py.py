@@ -186,6 +186,7 @@ if __name__ == '__main__':
 
     begin = time.time()
     [score, accuracy] = run(rank)
+    print('Run from process no.{}'.format(rank))
     print('Test model score:', score)
     print('Test model accuracy:', accuracy)
     end = time.time()
