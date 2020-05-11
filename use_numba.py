@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[17]:
 
 
 import numpy as np
@@ -13,7 +13,7 @@ import keras
 from keras.utils import to_categorical
 from keras.preprocessing.text import Tokenizer
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from keras.preprocessing import sequence
 from keras.models import Sequential
@@ -24,9 +24,10 @@ from keras import optimizers
 from keras.utils.vis_utils import plot_model
 
 import time
+from numba import jit, njit, prange
 
 
-# In[2]:
+# In[4]:
 
 
 def bigrams(words):
@@ -36,7 +37,7 @@ def bigrams(words):
     return bigrams
 
 
-# In[3]:
+# In[5]:
 
 
 def prepare(maxlen, dataset_filename='./data/dataset.csv', use_bigram=False):
@@ -84,7 +85,7 @@ def prepare(maxlen, dataset_filename='./data/dataset.csv', use_bigram=False):
     return [X_train, y_train, X_test, y_test, max_features, num_classes]
 
 
-# In[4]:
+# In[6]:
 
 
 def model(X_train, y_train,
@@ -126,16 +127,17 @@ def model(X_train, y_train,
                                 batch_size=batch_size,
                                verbose=verbose)
 
-    print('Test model score:', score)
-    print('Test model accuracy:', acc)
+    # print('Test model score:', score)
+    # print('Test model accuracy:', acc)
+    return [score, acc]
 
 
-# In[5]:
+# In[40]:
 
 
 MAX_LEN = 30
 
-tuning_list = [
+tuning_list = np.array([
     {    'name': 'simple_rnn',
         'use_bigram': False,
         'maxlen': MAX_LEN,
@@ -159,43 +161,30 @@ tuning_list = [
         'maxlen': MAX_LEN,
         'nn_type': 'lstm'
     }
-]
+], dtype=np.object)
 
-def main():
+@jit()
+def run():
     for params in tuning_list:
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
             maxlen=params['maxlen'], use_bigram=params['use_bigram'])
-        model(nn_type=params['nn_type'],
+        [score, acc] = model(nn_type=params['nn_type'],
               X_train=X_train, y_train=y_train, 
               X_test=X_test, y_test=y_test, 
               max_features=max_features, 
               num_classes=num_classes, 
               maxlen=params['maxlen'], 
               verbose=0)
-get_ipython().run_line_magic('time', '_ = main()')
+    return [score, acc]
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+if __name__ == '__main__':
+    begin = time.time()
+    [score, accuracy] = run()
+    print('Test model score:', score)
+    print('Test model accuracy:', accuracy)
+    end = time.time()
+    elapse = end - begin
+    print("Executed in %f secs" % (elapse))
 
