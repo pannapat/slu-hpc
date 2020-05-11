@@ -185,7 +185,7 @@ if __name__ == '__main__':
     size = comm.Get_size()
 
     begin = time.time()
-    [score, accuracy] = run(rank - 1)
+    [score, accuracy] = run(rank)
     print('Test model score:', score)
     print('Test model accuracy:', accuracy)
     end = time.time()
