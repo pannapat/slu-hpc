@@ -127,8 +127,9 @@ def model(X_train, y_train,
                                 batch_size=batch_size,
                                verbose=verbose)
 
-    print('Test model score:', score)
-    print('Test model accuracy:', acc)
+    # print('Test model score:', score)
+    # print('Test model accuracy:', acc)
+    return [score, acc]
 
 
 # In[40]:
@@ -163,59 +164,28 @@ tuning_list = np.array([
 ], dtype=np.object)
 
 @jit(parallel=True)
-def main():
+def run():
     for i in prange(tuning_list.shape[0]):
         params = tuning_list[i]
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
             maxlen=params['maxlen'], use_bigram=params['use_bigram'])
-        model(nn_type=params['nn_type'],
+        [score, acc] = model(nn_type=params['nn_type'],
               X_train=X_train, y_train=y_train, 
               X_test=X_test, y_test=y_test, 
               max_features=max_features, 
               num_classes=num_classes, 
               maxlen=params['maxlen'], 
               verbose=0)
+    return [score, acc]
 
 
-# In[ ]:
-
-
-get_ipython().run_line_magic('time', '_ = main()')
-
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('time', '_ = main()')
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[31]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+if __name__ == '__main__':
+    begin = time.time()
+    [score, accuracy] = run()
+    print('Test model score:', score)
+    print('Test model accuracy:', accuracy)
+    end = time.time()
+    elapse = end - begin
+    print("Executed in %f secs" % (elapse))
 

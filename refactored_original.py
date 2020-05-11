@@ -167,18 +167,19 @@ def run():
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
             maxlen=params['maxlen'], use_bigram=params['use_bigram'])
-        model(nn_type=params['nn_type'],
+        [score, acc] = model(nn_type=params['nn_type'],
               X_train=X_train, y_train=y_train, 
               X_test=X_test, y_test=y_test, 
               max_features=max_features, 
               num_classes=num_classes, 
               maxlen=params['maxlen'], 
               verbose=0)
+    return [score, acc]
 
 
 if __name__ == '__main__':
     begin = time.time()
-    [score, accuracy] = run(rank)
+    [score, accuracy] = run()
     print('Test model score:', score)
     print('Test model accuracy:', accuracy)
     end = time.time()
