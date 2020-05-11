@@ -165,7 +165,8 @@ tuning_list = np.array([
 
 @jit()
 def run():
-    for params in tuning_list:
+    for i in prange(tuning_list.shape[0]):
+        params = tuning_list[i]
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
             maxlen=params['maxlen'], use_bigram=params['use_bigram'])
