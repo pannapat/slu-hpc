@@ -186,4 +186,11 @@ def main():
             verbose=0)
         comm.send(accuracy, dest=0)
 
-get_ipython().run_line_magic('time', '_ = main()')
+# get_ipython().run_line_magic('time', '_ = main()')
+
+if __name__ == '__main__':
+    begin = time.time()
+    main()
+    end = time.time()
+    elapse = end - begin
+    print("Executed in %f secs" %(elapse))
