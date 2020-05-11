@@ -128,8 +128,8 @@ def model(X_train, y_train,
                                 batch_size=batch_size,
                                verbose=verbose)
 
-    print('Test model score:', score)
-    print('Test model accuracy:', acc)
+    # print('Test model score:', score)
+    # print('Test model accuracy:', acc)
     return [score, acc]
 
 # In[9]:
@@ -163,34 +163,33 @@ tuning_list = np.array([
     }
 ], dtype=np.object)
 
-def main():
-    comm = MPI.COMM_WORLD
-    rank = comm.Get_rank()
-    size = comm.Get_size()
-    
-    if rank == 0:
-        for i in range(tuning_list.shape[0]):
-            accuracy = comm.recv(source=i)
-            print('Test accuracy = {}'.format(accuracy))
-    else:
-        params = tuning_list[rank-1]
-        print('##### {} #####'.format(params['name']))
-        [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
-            maxlen=params['maxlen'], use_bigram=params['use_bigram'])
-        [score, accuracy] = model(nn_type=params['nn_type'],
-            X_train=X_train, y_train=y_train, 
-            X_test=X_test, y_test=y_test, 
-            max_features=max_features, 
-            num_classes=num_classes, 
-            maxlen=params['maxlen'], 
-            verbose=0)
-        comm.send(accuracy, dest=0)
+def run(index):
+    params = tuning_list[index]
+    print('##### {} #####'.format(params['name']))
+    [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
+        maxlen=params['maxlen'], use_bigram=params['use_bigram'])
+    [score, accuracy] = model(nn_type=params['nn_type'],
+        X_train=X_train, y_train=y_train, 
+        X_test=X_test, y_test=y_test, 
+        max_features=max_features, 
+        num_classes=num_classes, 
+        maxlen=params['maxlen'], 
+        verbose=0)
+    return [score, accuracy]
 
 # get_ipython().run_line_magic('time', '_ = main()')
 
 if __name__ == '__main__':
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
     begin = time.time()
-    main()
+    [score, accuracy] = run(rank - 1)
+    print('Test model score:', score)
+    print('Test model accuracy:', accuracy)
     end = time.time()
-    elapse = end - begin
-    print("Executed in %f secs" %(elapse))
+    
+    if rank == 0:
+        elapse = end - begin
+        print("Executed in %f secs" % (elapse))
