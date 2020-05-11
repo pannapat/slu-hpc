@@ -186,3 +186,4 @@ def main():
             verbose=0)
         comm.send(accuracy, dest=0)
 
+get_ipython().run_line_magic('time', '_ = main()')
