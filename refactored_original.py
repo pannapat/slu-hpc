@@ -175,7 +175,7 @@ def run():
               maxlen=params['maxlen'], 
               verbose=0)
     print('Test model score:', score)
-    print('Test model accuracy:', accuracy)
+    print('Test model accuracy:', acc)
     return [score, acc]
 
 
