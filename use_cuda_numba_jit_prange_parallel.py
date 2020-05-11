@@ -179,12 +179,12 @@ def run():
               verbose=0)
         print('Test model score:', score)
         print('Test model accuracy:', acc)
-    return [score, acc]
+    # return [score, acc]
 
 
 if __name__ == '__main__':
     begin = time.time()
-    [score, accuracy] = run()
+    run()
     end = time.time()
     elapse = end - begin
     print("Executed in %f secs" % (elapse))
