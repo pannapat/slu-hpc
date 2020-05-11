@@ -177,14 +177,14 @@ def run():
               num_classes=num_classes, 
               maxlen=params['maxlen'], 
               verbose=0)
+    print('Test model score:', score)
+    print('Test model accuracy:', accuracy)
     return [score, acc]
 
 
 if __name__ == '__main__':
     begin = time.time()
     [score, accuracy] = run()
-    print('Test model score:', score)
-    print('Test model accuracy:', accuracy)
     end = time.time()
     elapse = end - begin
     print("Executed in %f secs" % (elapse))
