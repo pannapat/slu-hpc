@@ -177,9 +177,8 @@ def run(index):
         verbose=0)
     return [score, accuracy]
 
-# get_ipython().run_line_magic('time', '_ = main()')
 
-if __name__ == '__main__':
+def func():
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -189,8 +188,11 @@ if __name__ == '__main__':
     print('Run from process no.{}'.format(rank))
     print('Test model score:', score)
     print('Test model accuracy:', accuracy)
-    end = time.time()
     
     if rank == 0:
+        end = time.time()
         elapse = end - begin
         print("Executed in %f secs" % (elapse))
+
+if __name__ == '__main__':
+    func()
