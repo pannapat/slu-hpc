@@ -24,7 +24,8 @@ from keras import optimizers
 from keras.utils.vis_utils import plot_model
 
 import time
-import mpi4py
+# import mpi4py
+from mpi4py import MPI
 
 
 # In[5]:
@@ -129,14 +130,14 @@ def model(X_train, y_train,
 
     print('Test model score:', score)
     print('Test model accuracy:', acc)
-
+    return [score, acc]
 
 # In[9]:
 
 
 MAX_LEN = 30
 
-tuning_list = [
+tuning_list = np.array([
     {    'name': 'simple_rnn',
         'use_bigram': False,
         'maxlen': MAX_LEN,
@@ -160,49 +161,28 @@ tuning_list = [
         'maxlen': MAX_LEN,
         'nn_type': 'lstm'
     }
-]
+], dtype=np.object)
 
 def main():
-    for params in tuning_list:
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+    
+    if rank == 0:
+        for i in range(tuning_list.shape[0]):
+            accuracy = comm.recv(source=i)
+            print('Test accuracy = {}'.format(accuracy))
+    else:
+        params = tuning_list[rank-1]
         print('##### {} #####'.format(params['name']))
         [X_train, y_train, X_test, y_test, max_features, num_classes] = prepare(
             maxlen=params['maxlen'], use_bigram=params['use_bigram'])
-        model(nn_type=params['nn_type'],
-              X_train=X_train, y_train=y_train, 
-              X_test=X_test, y_test=y_test, 
-              max_features=max_features, 
-              num_classes=num_classes, 
-              maxlen=params['maxlen'], 
-              verbose=0)
-
-
-# In[ ]:
-
-
-#mpi_mpi.py
-from mpi4py import MPI
-
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
-
-print("hello world from process %d/%d" %(rank, size))
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+        [score, accuracy] = model(nn_type=params['nn_type'],
+            X_train=X_train, y_train=y_train, 
+            X_test=X_test, y_test=y_test, 
+            max_features=max_features, 
+            num_classes=num_classes, 
+            maxlen=params['maxlen'], 
+            verbose=0)
+        comm.send(accuracy, dest=0)
 
